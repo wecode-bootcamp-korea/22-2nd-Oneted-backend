@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from jobpostings.models import TagCategory
+from django.views       import View
 
-# Create your views here.
+class TagView(View):
+    def get(self, request):
+        print(request)
+        # select related
+        tag_categories = TagCategory.objects.select_all()
