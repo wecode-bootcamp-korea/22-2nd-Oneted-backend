@@ -51,7 +51,7 @@ class Job(models.Model):
     class Meta:
         db_table = "jobs"
 
-class JobPostings(TimeStampModel):
+class JobPosting(TimeStampModel):
     job         = models.ForeignKey(Job, on_delete=models.PROTECT, related_name="job_posting")
     company     = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="job_posting")
     tags        = models.ManyToManyField(Tag, through="TagJobPosting", related_name="job_posting")
@@ -64,7 +64,7 @@ class JobPostings(TimeStampModel):
 
 class TagJobPosting(models.Model):
     tag         = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    job_posting = models.ForeignKey(JobPostings, on_delete=models.CASCADE)
+    job_posting = models.ForeignKey(JobPosting, on_delete=models.CASCADE)
 
     class Meta:
         db_table        = "tags_job_postings"
