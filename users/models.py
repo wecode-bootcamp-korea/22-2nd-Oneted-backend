@@ -1,6 +1,6 @@
-from django.db import models
+from django.db            import models
 
-from oneted.common import TimeStampModel
+from oneted.common        import TimeStampModel
 from jobpostings.models   import JobPosting
 
 # Create your views here.

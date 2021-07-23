@@ -8,6 +8,7 @@ class Resume(TimeStampModel):
     user     = models.ForeignKey(User, on_delete=models.CASCADE)
     title    = models.CharField(max_length=100)
     is_done  = models.BooleanField(default=False)
+    title    = models.CharField(max_length=100)
     file_url = models.URLField(null=True)
     content  = models.JSONField(default=dict)
     is_file  = models.BooleanField(default=False)
