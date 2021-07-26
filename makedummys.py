@@ -144,7 +144,6 @@ Resume.objects.create(user_id=7, title="성준's 다섯번째 이력서", is_don
 })
 
 # jobpostings 가져오기
-Apply.objects.create()
 jp1 = JobPosting.objects.get(id=1)
 jp2 = JobPosting.objects.get(id=2)
 jp3 = JobPosting.objects.get(id=3)
@@ -153,3 +152,8 @@ jp5 = JobPosting.objects.get(id=5)
 jp6 = JobPosting.objects.get(id=6)
 jp7 = JobPosting.objects.get(id=7)
 jp8 = JobPosting.objects.get(id=8)
+
+# apply
+u1 = User.objects.get(id=1)
+r = Resume.objects.filter(user=u1)
+Apply.objects.create(user=u1,job_posting=jp1).resume.add(1,6,7,8,9)

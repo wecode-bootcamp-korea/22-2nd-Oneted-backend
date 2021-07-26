@@ -1,19 +1,23 @@
-from query_debugger import query_debugger
 from django.views       import View
 from django.http        import JsonResponse
 from django.db.models   import Q, Count
 
 from jobpostings.models import Company, JobPosting, Tag
+from utils              import lose_authorization
+from query_debugger     import query_debugger
 
 class SearchView(View):
+    @lose_authorization
     @query_debugger
     def get(self, request):
-        region   = request.GET.get("region")
-        query    = request.GET.get("query")
-        order_by = request.GET.get("orderBy", "latest")
-        tags     = request.GET.getlist("tag")
-        offset   = int(request.GET.get("offset", 0))
-        limit    = int(request.GET.get("limit", 20))
+        region      = request.GET.get("region")
+        query       = request.GET.get("query")
+        job         = request.GET.get("job")
+        print(job)
+        order_by    = request.GET.get("orderBy", "latest")
+        tags        = request.GET.getlist("tag")
+        offset      = int(request.GET.get("offset", 0))
+        limit       = int(request.GET.get("limit", 20))
         sorted_dict = {
             "latest" : "-created_at",
             "popular" : "bookmark_count",
@@ -23,11 +27,13 @@ class SearchView(View):
         q = Q()
 
         if region:
-            q &= Q(company__region__name = region)
+            q &= Q(company__region__name=region)
         if query:
-            q &= Q(company__name__contains = query) | Q(title__contains= query)
+            q &= Q(company__name__contains=query) | Q(title__contains=query)
         if tags:
             q &= Q(tags__name__in=tags)
+        if request.user:
+            q &= Q(apply__user=request.user)
 
         job_postings = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])[offset : offset + limit]
         job_posting_list = [{
@@ -37,7 +43,7 @@ class SearchView(View):
                 "experience" : job_posting.experience.name,
                 "imageUrl" : job_posting.image_url,
                 "bookmarkCount" : job_posting.bookmark_count,
-                "apply_Count" : job_posting.apply_count,
+                "applyCount" : job_posting.apply_count,
                 "company" : {
                     "id" : job_posting.company.id,
                     "name" : job_posting.company.name,

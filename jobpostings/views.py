@@ -9,15 +9,6 @@ from users.models       import Bookmark
 class TagCategoryView(View):
     @query_debugger
     def get(self, request):
-
-        tag_categories    = TagCategory.objects.prefetch_related().all()
-        for tc in tag_categories:
-            print(tc.name)
-        print(tag_categories[0])
-        print(tag_categories[1])
-        print(tag_categories[2])
-
-
         tag_categories    = TagCategory.objects.prefetch_related("tag").all()
         tag_category_list = [{
                 "id"                 : tag_category.id,
@@ -28,15 +19,17 @@ class TagCategoryView(View):
                     "name" : tag.name,
                 } for tag in tag_category.tag.all()],
             } for tag_category in tag_categories]
-        
+        print(tag_categories._prefetch_related_lookups)
+
+
         return JsonResponse({"message":"SUCCESS", "result" : tag_category_list}, status=200)
         
 class JobGroupView(View):
     @query_debugger
     def get(self, request):
         job_groups     = JobGroup.objects.prefetch_related("job").all()
-        for j in job_groups:
-            print(j.job.all())
+        print(job_groups.query)
+        print(type(job_groups.query))
         job_group_list = [{
                 "id"   : job_group.id,
                 "name" : job_group.name,
