@@ -7,7 +7,6 @@ from utils              import lose_authorization
 from query_debugger     import query_debugger
 
 class SearchView(View):
-    @lose_authorization
     @query_debugger
     def get(self, request):
         region      = request.GET.get("region")
@@ -31,8 +30,6 @@ class SearchView(View):
             q &= Q(company__name__contains=query) | Q(title__contains=query)
         if tags:
             q &= Q(tags__name__in=tags)
-        if request.user:
-            q &= Q(apply__user=request.user)
 
         job_postings = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])[offset : offset + limit]
         job_posting_list = [{
