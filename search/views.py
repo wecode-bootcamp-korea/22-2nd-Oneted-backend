@@ -13,7 +13,6 @@ class SearchView(View):
         region      = request.GET.get("region")
         query       = request.GET.get("query")
         job         = request.GET.get("job")
-        print(job)
         order_by    = request.GET.get("orderBy", "latest")
         tags        = request.GET.getlist("tag")
         offset      = int(request.GET.get("offset", 0))
@@ -37,28 +36,27 @@ class SearchView(View):
 
         job_postings = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])[offset : offset + limit]
         job_posting_list = [{
-                "id" : job_posting.id,
-                "title" : job_posting.title,
-                "salary" : job_posting.salary,
-                "experience" : job_posting.experience.name,
-                "imageUrl" : job_posting.image_url,
+                "id"            : job_posting.id,
+                "title"         : job_posting.title,
+                "salary"        : job_posting.salary,
+                "experience"    : job_posting.experience.name,
+                "imageUrl"      : job_posting.image_url,
                 "bookmarkCount" : job_posting.bookmark_count,
-                "applyCount" : job_posting.apply_count,
-                "company" : {
-                    "id" : job_posting.company.id,
-                    "name" : job_posting.company.name,
-                    "region" : job_posting.company.region.name,
+                "applyCount"    : job_posting.apply_count,
+                "company"       : {
+                    "id"      : job_posting.company.id,
+                    "name"    : job_posting.company.name,
+                    "region"  : job_posting.company.region.name,
                     "country" : job_posting.company.region.country.name,
                 },
                 "job" : {
-                    "id" : job_posting.job.id,
-                    "name" :job_posting.job.name,
+                    "id"   : job_posting.job.id,
+                    "name" : job_posting.job.name,
                 },
         } for job_posting in job_postings]
 
         return JsonResponse({"message":"SUCCESS", "result":job_posting_list}, status=200)
 
-# ? : 제대로 가져오고 있는건가?
 class SuggestView(View):
     @query_debugger
     def get(self, request):
@@ -79,16 +77,16 @@ class SuggestView(View):
         companies    = Company.objects.filter(t).values("id", "name")[offset : offset + limit]
         result       = {
             "jobPostings" : [{
-                "id" : job_posting["id"],
+                "id"    : job_posting["id"],
                 "title" : job_posting["title"],
             # ! : values를 쓰면 annotate의 결과도 dict의 key value로써 들어가게 된다.
             }for job_posting in job_postings],
             "tags" : [{
-                "id" : tag["id"],
+                "id"   : tag["id"],
                 "name" : tag["name"],
             }for tag in tags],
             "companies" : [{
-                "id" : company["id"],
+                "id"   : company["id"],
                 "name" : company["name"],
             }for company in companies],
         }
