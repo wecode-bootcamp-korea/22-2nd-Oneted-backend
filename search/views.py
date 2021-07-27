@@ -30,6 +30,8 @@ class SearchView(View):
             q &= Q(company__name__contains=query) | Q(title__contains=query)
         if tags:
             q &= Q(tags__name__in=tags)
+        if job:
+            q &= Q(job__name=job)
 
         job_postings = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])[offset : offset + limit]
         job_posting_list = [{
