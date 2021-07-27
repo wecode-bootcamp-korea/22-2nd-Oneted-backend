@@ -1,6 +1,5 @@
 import json
 from json.decoder import JSONDecodeError
-from query_debugger import query_debugger
 from utils import authorization
 from users.models import User
 from django.views       import View
@@ -11,11 +10,10 @@ from resumes.models import Resume
 
 class ResumeDetailView(View):
     @authorization
-    @query_debugger
     def get(self, request, resume_id):
         try:
             resume = Resume.objects.get(id=resume_id)
-
+            print(resume)
             if resume.user != request.user:
                 return JsonResponse({"message" : "USER_NOT_MATCH"}, status=401)
 
@@ -37,7 +35,6 @@ class ResumeDetailView(View):
             return JsonResponse({"message" : "RESUME_NOT_EXIST"}, status=401)
 
     @authorization
-    @query_debugger
     def delete(self, request, resume_id):
         try:
             resume = Resume.objects.get(id=resume_id)
@@ -53,7 +50,6 @@ class ResumeDetailView(View):
             return JsonResponse({"message" : "RESUME_NOT_EXIST"}, status=401)
 
     @authorization
-    @query_debugger
     def patch(self, request, resume_id):
         try:
             data   = json.loads(request.body)
@@ -86,7 +82,6 @@ class ResumeDetailView(View):
 
 class ResumeView(View):
     @authorization
-    @query_debugger
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -109,7 +104,6 @@ class ResumeView(View):
             return JsonResponse({"message" : "JSON_DECODE_ERROR"}, status=400)
 
     @authorization
-    @query_debugger
     def get(self, request):
         resumes = Resume.objects.filter(user=request.user)
         result = [{
