@@ -142,7 +142,7 @@ class SuggestView(View):
     def get(self, request):
         try:
             query        = request.GET["query"]
-            job_postings = JobPosting.objects.filter(title__contains= query).values("id", "title")[0:4]
+            job_postings = JobPosting.objects.filter(title__contains=query).values("id", "title")[0:4]
             tags         = Tag.objects.filter(name__contains=query).values("id", "name")[0:4]
             companies    = Company.objects.filter(name__contains=query).values("id", "name")[0:4]
             result       = {
