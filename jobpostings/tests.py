@@ -33,7 +33,7 @@ class TagCategoryTest(TestCase):
                         "id"   : 1,
                         "name" : "연봉업계평균이상",
                 }]
-            }]} 
+            }]}
         })
 
 class JobGroupTest(TestCase):
