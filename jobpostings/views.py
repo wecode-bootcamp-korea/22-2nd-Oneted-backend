@@ -190,3 +190,17 @@ class ApplyView(View):
 
         except JSONDecodeError:
             return JsonResponse({"message" : "JDON_DECODE_ERROR"}, status=400)
+
+"""
+1. filter : job__name
+"""
+class SalaryView(View):
+    def get(self, request):
+        job_group = request.GET.get("jobGroup")
+        job       = request.GET.get("job")
+        print(job_group, job)
+
+        job_postings = JobPosting.objects.filter(job__name=job)
+        print(job_postings)
+            
+        return JsonResponse({"message":"SUCCESS"}, status=200)

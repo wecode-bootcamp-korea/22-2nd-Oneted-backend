@@ -1,12 +1,13 @@
 from django.urls import path
 
-from jobpostings.views import ApplyView, BookMarkView, PostingDetailView, PostingsView, SuggestView, TagCategoryView, JobGroupView
+from jobpostings.views import ApplyView, BookMarkView, PostingDetailView, PostingsView, SalaryView, SuggestView, TagCategoryView, JobGroupView
 
 urlpatterns = [
     path("", PostingsView.as_view()),
     path("/suggested", SuggestView.as_view()),
     path("/tags", TagCategoryView.as_view()),
     path("/jobs", JobGroupView.as_view()),
+    path("/salary", SalaryView.as_view()),
     path('/<int:posting_id>/bookmark', BookMarkView.as_view()),
     path('/<int:posting_id>', PostingDetailView.as_view()),
     path('/<int:posting_id>/apply', ApplyView.as_view()),
