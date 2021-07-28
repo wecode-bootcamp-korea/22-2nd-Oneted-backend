@@ -1,3 +1,6 @@
+import json
+from json.decoder import JSONDecodeError
+from resumes.models import Apply, Resume
 from django.views       import View
 from django.http        import JsonResponse
 from django.db.models   import Q, Count
@@ -164,3 +167,26 @@ class SuggestView(View):
 
         except KeyError:
             return JsonResponse({"message" : "KEY_ERROR"}, status=400)
+
+class ApplyView(View):
+    @authorization
+    def post(self, request, posting_id):
+        try:
+            data    = json.loads(request.body)
+            resumes = Resume.objects.filter(id__in=data["resumeList"], user=request.user)
+
+            if not resumes.exists():
+                return JsonResponse({"message" : "NO_RESUME_SELECTED"}, status=400)
+            
+            if Apply.objects.filter(job_posting__id=posting_id, user=request.user).exists():
+                return JsonResponse({"message" : "APPLY_ALREADY_EXIST"}, status=400)
+
+            Apply.objects.create(user=request.user, job_posting_id=posting_id).resume.set(resumes)
+            
+            return JsonResponse({"message":"SUCCESS"}, status=200)
+        
+        except KeyError:
+            return JsonResponse({"message" : "KEY_ERROR"}, status=400)
+
+        except JSONDecodeError:
+            return JsonResponse({"message" : "JDON_DECODE_ERROR"}, status=400)
