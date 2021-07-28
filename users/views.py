@@ -20,10 +20,8 @@ class KakaoLoginView(View):
             access_token = request.headers["Authorization"]
             headers      = ({"Authorization": f"Bearer {access_token}"})
             url          = "https://kapi.kakao.com/v2/user/me"
-            print(headers)
             response     = requests.get(url, headers=headers)
             user         = response.json()
-            print(user)
 
             if not User.objects.filter(kakao_api_id=user["id"]).exists():
                 User.objects.create(

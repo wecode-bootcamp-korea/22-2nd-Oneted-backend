@@ -13,7 +13,9 @@ class ResumeDetailView(View):
     def get(self, request, resume_id):
         try:
             resume = Resume.objects.get(id=resume_id)
+            print("_---------------")
             print(resume)
+            print(request.user)
             if resume.user != request.user:
                 return JsonResponse({"message" : "USER_NOT_MATCH"}, status=401)
 
@@ -80,7 +82,20 @@ class ResumeDetailView(View):
         except IndexError:
             return JsonResponse({"message" : "RESUME_NOT_EXIST"}, status=400)
 
-class ResumeView(View):
+class ResumesView(View):
+    @authorization
+    def get(self, request):
+        resumes = Resume.objects.filter(user=request.user)
+        result = [{
+                "id"      : resume.id,
+                "title"   : resume.title,
+                "isDone"  : resume.is_done,
+                "isFile"  : resume.is_file,
+                "fileUrl" : resume.file_url
+            }for resume in resumes]
+
+        return JsonResponse({"message" : "SUCCESS", "result" : result}, status=200)
+
     @authorization
     def post(self, request):
         try:
@@ -102,16 +117,3 @@ class ResumeView(View):
 
         except JSONDecodeError:
             return JsonResponse({"message" : "JSON_DECODE_ERROR"}, status=400)
-
-    @authorization
-    def get(self, request):
-        resumes = Resume.objects.filter(user=request.user)
-        result = [{
-                "id"      : resume.id,
-                "title"   : resume.title,
-                "isDone"  : resume.is_done,
-                "isFile"  : resume.is_file,
-                "fileUrl" : resume.file_url
-            }for resume in resumes]
-
-        return JsonResponse({"message" : "SUCCESS", "result" : result}, status=200)

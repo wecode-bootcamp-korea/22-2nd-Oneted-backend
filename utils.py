@@ -6,14 +6,12 @@ from users.models import User
 def authorization(func):
     def wrapper(self, request, *args, **kwargs):
         token = request.headers.get('Authorization', None)
-        print(token)
-        print("===================")
+        
         if token is None:
             return JsonResponse({'error': 'ENTER_THE_TOKEN'}, status=401)
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-            print(payload)
             if User.objects.filter(id=payload['user_id']).exists():
                 request.user = User.objects.get(id=payload['user_id'])
                 return func(self, request, *args, **kwargs)
