@@ -58,4 +58,3 @@ def lose_authorization(func):
             return JsonResponse({'error': 'INVALID_TOKEN'}, status=401)
 
     return wrapper
-
