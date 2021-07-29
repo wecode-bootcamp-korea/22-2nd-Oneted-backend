@@ -2,9 +2,9 @@ import json
 from json.decoder       import JSONDecodeError
 from django.views       import View
 from django.http        import JsonResponse
-from django.db.models   import Q, Count
+from django.db.models   import Q, Count, Avg
 
-from jobpostings.models import TagCategory, JobGroup, Company, JobPosting, Tag
+from jobpostings.models import TagCategory, JobGroup, Company, JobPosting, Tag, Job
 from resumes.models     import Apply, Resume
 from users.models       import Bookmark
 from utils              import lose_authorization, authorization
@@ -177,3 +177,66 @@ class ApplyView(View):
 
         except JSONDecodeError:
             return JsonResponse({"message" : "JDON_DECODE_ERROR"}, status=400)
+            
+class SalaryView(View):
+    def get(self, request):
+        job_group = request.GET.get("jobGroup")
+        job       = request.GET.get("job")
+
+        if not job or not job_group:
+            return JsonResponse({"message":"QUERY_REQUIRED"}, status=400)
+
+        model    = JobGroup if job == "전체" else Job
+        name     = job_group if job == "전체" else job
+        key      = "job__job_posting" if job == "전체" else "job_posting"
+        related  = ("job", "job__job_posting", "job__job_posting__experience") if job == "전체" else ("job_posting", "job_posting__experience")
+        
+        if not model.objects.filter(name=name).exists():
+            return JsonResponse({"message":"DATA_NOT_FOUND"}, status=404)
+        
+        job_or_group = model.objects.filter(name=name).prefetch_related(*related)\
+            .annotate(
+                avg_total       = Avg(f"{key}__salary"),
+                posting_count   = Count(key),
+                avg_zero        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"신입"} )),
+                avg_one         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"1년차"} )),
+                avg_two         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"2년차"} )),
+                avg_three       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"3년차"} )),            
+                avg_four        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"4년차"} )),
+                avg_five        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"5년차"} )),
+                avg_six         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"6년차"} )),
+                avg_seven       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"7년차"} )),
+                avg_eight       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"8년차"} )),
+                avg_nine        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"9년차 이상"} )),
+            )[0]
+
+        salary_info = {
+                "id"               : job_or_group.id,
+                "name"             : job_or_group.name,
+                "postingsCount"    : job_or_group.posting_count,
+                "avgTotal"         : job_or_group.avg_total,
+                "avgZero"          : job_or_group.avg_zero,
+                "avgOne"           : job_or_group.avg_one,
+                "avgTwo"           : job_or_group.avg_two,
+                "avgThree"         : job_or_group.avg_three,
+                "avgFour"          : job_or_group.avg_four,
+                "avgFive"          : job_or_group.avg_five,
+                "avgSix"           : job_or_group.avg_six,
+                "avgSeven"         : job_or_group.avg_seven,
+                "avgEight"         : job_or_group.avg_eight,
+                "avgNine"          : job_or_group.avg_nine,
+                "avgArray"         : [
+                                        job_or_group.avg_zero,
+                                        job_or_group.avg_one,
+                                        job_or_group.avg_two,
+                                        job_or_group.avg_three,
+                                        job_or_group.avg_four,
+                                        job_or_group.avg_five,
+                                        job_or_group.avg_six,
+                                        job_or_group.avg_seven,
+                                        job_or_group.avg_eight,
+                                        job_or_group.avg_nine
+                                    ],
+        }
+
+        return JsonResponse({"message":"SUCCESS", "result" : salary_info}, status=200)
