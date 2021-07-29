@@ -6,7 +6,8 @@ from django.test    	import TestCase
 from django.test    	import Client
 from unittest.mock  	import patch, MagicMock
 
-from .models        	import User, Bookmark
+
+from .models			import User, Bookmark
 from jobpostings.models import JobPosting, Country, Region, Company, JobGroup, Job, Experience
 from utils				import authorization
 from my_settings		import SECRET_KEY, ALGORITHM
@@ -31,8 +32,8 @@ class BookmarkTest(TestCase):
 			coordinate 	   = { "latitude" : "37.490276608139034", "longitude" : "127.00519275854258"}
 		)
 		Company.objects.create(
-			id 			   = 2,
-			region_id 	   = 1,
+			id             = 2,
+			region_id      = 1,
 			name           = "요기요2",
 			description    = "요기요2",
 			employee_count = 150,
@@ -47,7 +48,7 @@ class BookmarkTest(TestCase):
 			name = "개발"
 		)
 		Job.objects.create(
-			id 			 = 1,
+			id           = 1,
 			job_group_id = 1,
 			name         = "파이썬개발자"
 		)
@@ -63,7 +64,7 @@ class BookmarkTest(TestCase):
 			id            = 2,
 			job_id        = 1,
 			company_id    = 2,
-			title 		  = "요기요2",
+			title         = "요기요2",
 			experience_id = 1,
 			salary        = 36000000
 		)
@@ -74,7 +75,7 @@ class BookmarkTest(TestCase):
 			profile_image = "aaaa.jpg"
 		)
 		Bookmark.objects.create(
-			user_id 	   = 1,
+			user_id        = 1,
 			job_posting_id = 1
 		)
 
@@ -89,8 +90,8 @@ class BookmarkTest(TestCase):
 		Country.objects.all().delete()
 
 	def test_bookmarkview_invalid_value_success(self):
-		client 		= Client()
-		user		= User.objects.get(name="홍길동")
+		client      = Client()
+		user        = User.objects.get(name="홍길동")
 		encoded_jwt = jwt.encode({"user_id": user.id}, SECRET_KEY, algorithm=ALGORITHM)
 		headers     = {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
 		response    = client.post('/users/bookmark/1', **headers)
@@ -101,8 +102,8 @@ class BookmarkTest(TestCase):
 		})
 
 	def test_bookmarkview_valid_value_success(self):
-		client 		= Client()
-		user 		= User.objects.get(name="홍길동")
+		client      = Client()
+		user        = User.objects.get(name="홍길동")
 		encoded_jwt = jwt.encode({"user_id": user.id}, SECRET_KEY, algorithm=ALGORITHM)
 		headers     = {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
 		response    = client.post('/users/bookmark/2', **headers)
@@ -113,10 +114,10 @@ class BookmarkTest(TestCase):
 		})
 
 	def test_bookmarkview_invalid_user(self):
-		client 		= Client()
+		client      = Client()
 		encoded_jwt = jwt.encode({"user_id": 2}, SECRET_KEY, algorithm=ALGORITHM)
-		headers 	= {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
-		response 	= client.post('/users/bookmark/1', **headers)
+		headers     = {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
+		response    = client.post('/users/bookmark/1', **headers)
 
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json(),{
@@ -124,7 +125,7 @@ class BookmarkTest(TestCase):
 		})
 
 	def test_bookmarkview_invalid_token(self):
-		client 	 = Client()
+		client   = Client()
 		headers  = {"HTTP_AUTHORIZATION":f''}
 		response = client.post('/users/bookmark/1', **headers)
 
@@ -162,10 +163,10 @@ class kakaologin(TestCase):
 				}
 
 		mocked_requests.get = MagicMock(return_value=MockedResponse())
-		headers			    = {"HTTP_AUTHORIZATION": "fake access_token"}
-		response 			= client.post("/users/kakaologin",  content_type="applications/json", **headers)
-		access_token 		= response.json()["token"]
-		user_info 			= response.json()["user_info"]
+		headers             = {"HTTP_AUTHORIZATION": "fake access_token"}
+		response            = client.post("/users/kakaologin",  content_type="applications/json", **headers)
+		access_token        = response.json()["token"]
+		user_info           = response.json()["user_info"]
 
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.json(), {
@@ -182,27 +183,27 @@ class kakaologin(TestCase):
 				return {
 					"id": 1234567899,
 					"kakao_account": {
-						"profile_needs_agreement": False,
-						"profile": {
-							"nickname": "홍길동",
-							"thumbnail_image_url": "http://yyy.kakao.com/.../img_110x110.jpg",
-							"profile_image_url": "http://yyy.kakao.com/dn/.../img_640x640.jpg",
-							"is_default_image": False
+						"profile_needs_agreement"   : False,
+						"profile"                   : {
+							"nickname"            : "홍길동",
+							"thumbnail_image_url" : "http://yyy.kakao.com/.../img_110x110.jpg",
+							"profile_image_url"   : "http://yyy.kakao.com/dn/.../img_640x640.jpg",
+							"is_default_image"    : False
 						},
-						"email_needs_agreement": False,
-						"is_email_valid": True,
-						"is_email_verified": True,
-						"email": "sample@sample.com",
-						"age_range_needs_agreement": False,
-						"age_range": "20~29",
-						"birthday_needs_agreement": False,
-						"birthday": "1130"
+						"email_needs_agreement"     : False,
+						"is_email_valid"            : True,
+						"is_email_verified"         : True,
+						"email"                     : "sample@sample.com",
+						"age_range_needs_agreement" : False,
+						"age_range"                 : "20~29",
+						"birthday_needs_agreement"  : False,
+						"birthday"                  : "1130"
 					}
 				}
 
 		mocked_requests.get = MagicMock(return_value=MockedResponse())
-		headers 			= {"HTTP_AUTHORIZATION": ""}
-		response 			= client.post("/users/kakaologin", content_type="applications/json", headers=headers)
+		headers             = {"HTTP_AUTHORIZATION": ""}
+		response            = client.post("/users/kakaologin", content_type="applications/json", headers=headers)
 
 		self.assertEqual(response.status_code, 401)
 		self.assertEqual(response.json(), {
