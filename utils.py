@@ -27,6 +27,7 @@ def authorization(func):
             return JsonResponse({'error': 'EXPIRED_SIGNATURE'}, status=401)
         except jwt.DecodeError:
             return JsonResponse({'error': 'INVALID_TOKEN'}, status=401)
+
     return wrapper
 
 def lose_authorization(func):
@@ -52,4 +53,6 @@ def lose_authorization(func):
             return JsonResponse({'error': 'EXPIRED_SIGNATURE'}, status=401)
         except jwt.DecodeError:
             return JsonResponse({'error': 'INVALID_TOKEN'}, status=401)
+
     return wrapper
+

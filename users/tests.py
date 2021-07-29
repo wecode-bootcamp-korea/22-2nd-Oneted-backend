@@ -6,7 +6,6 @@ from django.test    	import TestCase
 from django.test    	import Client
 from unittest.mock  	import patch, MagicMock
 
-
 from .models			import User, Bookmark
 from jobpostings.models import JobPosting, Country, Region, Company, JobGroup, Job, Experience
 from utils				import authorization
@@ -118,6 +117,10 @@ class BookmarkTest(TestCase):
 		encoded_jwt = jwt.encode({"user_id": 2}, SECRET_KEY, algorithm=ALGORITHM)
 		headers     = {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
 		response    = client.post('/users/bookmark/1', **headers)
+		client 		= Client()
+		encoded_jwt = jwt.encode({"user_id": 2}, SECRET_KEY, algorithm=ALGORITHM)
+		headers 	= {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
+		response 	= client.post('/users/bookmark/1', **headers)
 
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json(),{
@@ -209,4 +212,3 @@ class kakaologin(TestCase):
 		self.assertEqual(response.json(), {
 			"message":"INVAID_ACCESS_TOKEN"
 		})
-
