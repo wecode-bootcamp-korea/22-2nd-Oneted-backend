@@ -68,8 +68,11 @@ class PostingsView(View):
             q &= Q(experience__name=experience)
         if tags:
             q &= Q(tags__name__in=tags)
-
-        job_postings     = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])[offset * limit : (offset * limit) + limit]
+        
+        queryset     = JobPosting.objects.select_related("job", "experience", "company", "company__region", "company__region__country").annotate(bookmark_count=Count("bookmark"), apply_count=Count("apply")).filter(q).distinct().order_by(sorted_dict[order_by])
+        job_postings = queryset[offset * limit : (offset * limit) + limit] 
+        job_posting_count = queryset.aggregate(Count("id"))["id__count"]
+        
         job_posting_list = [{
             "id"            : job_posting.id,
             "title"         : job_posting.title,
@@ -90,7 +93,7 @@ class PostingsView(View):
             }
         } for job_posting in job_postings]
 
-        return JsonResponse({"message":"SUCCESS", "result":job_posting_list}, status=200)
+        return JsonResponse({"message":"SUCCESS", "count" : job_posting_count, "result":job_posting_list}, status=200)
 
 class SuggestView(View):
     def get(self, request):
