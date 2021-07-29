@@ -209,4 +209,3 @@ class kakaologin(TestCase):
 		self.assertEqual(response.json(), {
 			"message":"INVAID_ACCESS_TOKEN"
 		})
-
