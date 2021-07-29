@@ -115,6 +115,10 @@ class BookmarkTest(TestCase):
 		encoded_jwt = jwt.encode({"user_id": 2}, SECRET_KEY, algorithm=ALGORITHM)
 		headers     = {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
 		response    = client.post('/users/bookmark/1', **headers)
+		client 		= Client()
+		encoded_jwt = jwt.encode({"user_id": 2}, SECRET_KEY, algorithm=ALGORITHM)
+		headers 	= {"HTTP_AUTHORIZATION":f'{encoded_jwt}'}
+		response 	= client.post('/users/bookmark/1', **headers)
 
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json(),{
