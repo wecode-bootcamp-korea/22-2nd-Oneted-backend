@@ -8,10 +8,7 @@ from django.http        import JsonResponse
 from django.utils       import timezone
 
 from resumes.models     import Resume, Apply, ResumeApply
-<<<<<<< HEAD
-=======
 from my_settings        import AWS_S3_ACCESS_KEY_ID, AWS_S3_SECRET_ACCESS_KEY, BUCKET, AWS_S3_URL
->>>>>>> a39cbdfe6a232cbdd71fed7451da4d69f6e33f96
 from utils              import authorization
 
 class ResumesView(View):
@@ -100,8 +97,6 @@ class ResumeView(View):
 
         except KeyError:
             return JsonResponse({"message" : "KEY_ERROR"}, status=400)
-<<<<<<< HEAD
-<<<<<<< HEAD
             
     @authorization
     def delete(self, request, resume_id):
@@ -111,7 +106,6 @@ class ResumeView(View):
         Resume.objects.get(id=resume_id, user=request.user).delete()
         
         return JsonResponse({"message" : "SUCCESS"}, status=200)
-=======
 
 class ResumeApply(View):
     @authorization
@@ -131,9 +125,6 @@ class ResumeApply(View):
         )
 
         return JsonResponse({"message":"SUCCESS"}, status = 201)
-
->>>>>>> cf37710ea6a4d1903376b2857281db3d135d3718
-=======
 
 class ResumeFile(View):
     s3_client = boto3.client(
@@ -208,4 +199,3 @@ class ResumeFile(View):
         )
 
         return JsonResponse({"message":"SUCCESS"}, status=200)
->>>>>>> a39cbdfe6a232cbdd71fed7451da4d69f6e33f96
