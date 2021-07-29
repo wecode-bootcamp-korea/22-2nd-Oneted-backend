@@ -1,12 +1,15 @@
 import json
 from json.decoder import JSONDecodeError
+
+from django.db.models.aggregates import Avg, Sum
+from django.db.models.query import Prefetch
 from resumes.models import Apply, Resume
 from django.views       import View
 from django.http        import JsonResponse
 from django.db.models   import Q, Count
 
 from users.models       import Bookmark
-from jobpostings.models import Company, JobGroup, JobPosting, Tag, TagCategory
+from jobpostings.models import Company, Job, JobGroup, JobPosting, Tag, TagCategory
 from utils              import authorization, lose_authorization
 
 class TagCategoryView(View):
@@ -193,14 +196,61 @@ class ApplyView(View):
 
 """
 1. filter : job__name
+2. default value 놓기. 전체로. 이 경우엔 jobGroup을 받아야 함.
+3. 연봉 : 경력별 채용공고들의 연봉
+4. annotate
+5. Avg
+6. select_related
+7. ? : values로 원하는 것만 가져올까?
+
+! : job이 전체일 땐 jobGroup의 모든 job에 대해서. Q객체를 써서 조건부로 filter을 거는것도 나쁘지 않겠다.
 """
+
 class SalaryView(View):
     def get(self, request):
         job_group = request.GET.get("jobGroup")
         job       = request.GET.get("job")
-        print(job_group, job)
 
-        job_postings = JobPosting.objects.filter(job__name=job)
-        print(job_postings)
-            
-        return JsonResponse({"message":"SUCCESS"}, status=200)
+        if not job or not job_group:
+            return JsonResponse({"message":"QUERY_REQUIRED"}, status=400)
+
+        model    = JobGroup if job == "전체" else Job
+        name     = job_group if job == "전체" else job
+        key      = "job__job_posting" if job == "전체" else "job_posting"
+        related  = ("job", "job__job_posting", "job__job_posting__experience") if job == "전체" else ("job_posting", "job_posting__experience")
+        
+        if not model.objects.filter(name=name).exists():
+            return JsonResponse({"message":"DATA_NOT_FOUND"}, status=404)
+        
+        job_or_group = model.objects.filter(name=name).prefetch_related(*related)\
+            .annotate(
+                avg_total       = Avg(f"{key}__salary"),
+                posting_count   = Count(key),
+                avg_zero        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"신입"} )),
+                avg_one         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"1년차"} )),
+                avg_two         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"2년차"} )),
+                avg_three       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"3년차"} )),            
+                avg_four        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"4년차"} )),
+                avg_five        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"5년차"} )),
+                avg_six         = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"6년차"} )),
+                avg_seven       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"7년차"} )),
+                avg_eight       = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"8년차"} )),
+                avg_nine        = Avg(f"{key}__salary", filter=Q(**{f"{key}__experience__name":"9년차 이상"} )),
+            )[0]
+
+        salary_info = {
+                "postings_count"    : job_or_group.posting_count,
+                "avg_total"         : job_or_group.avg_total,
+                "avg_zero"          : job_or_group.avg_zero,
+                "avg_one"           : job_or_group.avg_one,
+                "avg_two"           : job_or_group.avg_two,
+                "avg_three"         : job_or_group.avg_three,
+                "avg_four"          : job_or_group.avg_four,
+                "avg_five"          : job_or_group.avg_five,
+                "avg_six"           : job_or_group.avg_six,
+                "avg_seven"         : job_or_group.avg_seven,
+                "avg_eight"         : job_or_group.avg_eight,
+                "avg_nine"          : job_or_group.avg_nine,
+        }
+
+        return JsonResponse({"message":"SUCCESS", "result" : salary_info}, status=200)

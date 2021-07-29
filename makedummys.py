@@ -1,5 +1,5 @@
 from jobpostings.models import *
-
+import random
 # jobs
 jg1 = JobGroup.objects.create(name="개발")
 j1 = Job.objects.create(job_group=jg1, name="nodeJS 개발자")
@@ -51,6 +51,8 @@ exp9 = Experience.objects.create(name="8년차")
 exp10 = Experience.objects.create(name="9년차 이상")
 
 # jobpostings
+
+
 jp1 = JobPosting.objects.create(job=j1, experience=exp1, company=c1, title="백엔드 엔지니어 (주니어)", salary=50000000, main_task="- 모두싸인 백엔드 애플리케이션 설계 및 구현 \n- 더 나은 고객 경험을 제공하기 위한 서비스 개선 및 최적화 활동\n- 인하우스/백오피스  서비스 개발",requirement="\n- 한 가지 이상의 언어를 능숙하게 다루실 수 있는 분\n- RESTful API 개발 경험\n- SQL or NO-SQL 데이터베이스 경험\n- 다른 직무의 팀원과 적극적으로 대화할 수 있는 의사소통 태도와 능력\n- 장애 발생시 빠른 확인이 가능 한 트러블 슈팅 스킬\n- 새로운 것을 빠르게 배우고 호기심이 많으신 분\n- 해외여행 결격사유가 없는 분\n- 병역필 또는 면제자")
 jp2 = JobPosting.objects.create(job=j2, experience=exp1, company=c1, title="프론트엔드 엔지니어 (주니어)", salary=50000000, main_task="- 모두싸인 백엔드 애플리케이션 설계 및 구현 \n- 더 나은 고객 경험을 제공하기 위한 서비스 개선 및 최적화 활동\n- 인하우스/백오피스  서비스 개발",requirement="\n- 한 가지 이상의 언어를 능숙하게 다루실 수 있는 분\n- RESTful API 개발 경험\n- SQL or NO-SQL 데이터베이스 경험\n- 다른 직무의 팀원과 적극적으로 대화할 수 있는 의사소통 태도와 능력\n- 장애 발생시 빠른 확인이 가능 한 트러블 슈팅 스킬\n- 새로운 것을 빠르게 배우고 호기심이 많으신 분\n- 해외여행 결격사유가 없는 분\n- 병역필 또는 면제자")
 jp3 = JobPosting.objects.create(job=j3, experience=exp3, company=c1, title="파이썬 개발자", salary=80000000, main_task="- 모두싸인 백엔드 애플리케이션 설계 및 구현 \n- 더 나은 고객 경험을 제공하기 위한 서비스 개선 및 최적화 활동\n- 인하우스/백오피스  서비스 개발",requirement="\n- 한 가지 이상의 언어를 능숙하게 다루실 수 있는 분\n- RESTful API 개발 경험\n- SQL or NO-SQL 데이터베이스 경험\n- 다른 직무의 팀원과 적극적으로 대화할 수 있는 의사소통 태도와 능력\n- 장애 발생시 빠른 확인이 가능 한 트러블 슈팅 스킬\n- 새로운 것을 빠르게 배우고 호기심이 많으신 분\n- 해외여행 결격사유가 없는 분\n- 병역필 또는 면제자")
@@ -157,3 +159,18 @@ jp8 = JobPosting.objects.get(id=8)
 u1 = User.objects.get(id=1)
 r = Resume.objects.filter(user=u1)
 Apply.objects.create(user=u1,job_posting=jp1).resume.add(1,6,7,8,9)
+
+# random datas
+for i in range(100):
+    ran_exp = random.randint(1,10)
+    ran_job = random.randint(2,8)
+    ran_salary = random.randint(3000,10000)
+    JobPosting.objects.create(
+        job_id=ran_job, 
+        experience_id=ran_exp, 
+        company_id=1, 
+        title="백엔드 엔지니어 (주니어)", 
+        salary=ran_salary * 1000, 
+        main_task="- 모두싸인 백엔드 애플리케이션 설계 및 구현 \n- 더 나은 고객 경험을 제공하기 위한 서비스 개선 및 최적화 활동\n- 인하우스/백오피스  서비스 개발",
+        requirement="\n- 한 가지 이상의 언어를 능숙하게 다루실 수 있는 분\n- RESTful API 개발 경험\n- SQL or NO-SQL 데이터베이스 경험\n- 다른 직무의 팀원과 적극적으로 대화할 수 있는 의사소통 태도와 능력\n- 장애 발생시 빠른 확인이 가능 한 트러블 슈팅 스킬\n- 새로운 것을 빠르게 배우고 호기심이 많으신 분\n- 해외여행 결격사유가 없는 분\n- 병역필 또는 면제자"
+    )
